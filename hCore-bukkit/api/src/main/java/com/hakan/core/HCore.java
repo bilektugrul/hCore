@@ -365,16 +365,6 @@ public final class HCore {
      */
 
     /**
-     * Gets NbtManager object.
-     *
-     * @return NbtManager object.
-     */
-    @Nonnull
-    public static NbtManager getNbtManager() {
-        return ItemBuilder.getNbtManager();
-    }
-
-    /**
      * Creates new item stack builder.
      *
      * @param type Material.

@@ -1,7 +1,6 @@
 package com.hakan.core.item;
 
 import com.hakan.core.HCore;
-import com.hakan.core.item.nbt.NbtManager;
 import com.hakan.core.item.skull.SkullBuilder;
 import com.hakan.core.protocol.ProtocolVersion;
 import com.hakan.core.utils.ColorUtil;
@@ -29,51 +28,14 @@ import java.util.Set;
 @SuppressWarnings({"unchecked"})
 public class ItemBuilder {
 
-    private static Enchantment glowEnchantment;
-    private static NbtManager nbtManager;
-
     /**
      * initialize method of HItemStack class.
      */
     public static void initialize() {
         SkullBuilder.initialize();
-
-        nbtManager = ReflectionUtils.newInstance("com.hakan.core.item.nbt.NbtManager_%s");
-        glowEnchantment = ReflectionUtils.newInstance("com.hakan.core.item.enchantment.EnchantmentGlow_%s",
-                new Class[]{int.class}, new Object[]{152634});
-
-        if (ProtocolVersion.getCurrentVersion().isOlderOrEqual(ProtocolVersion.v1_20_R2)) {
-            if (Arrays.asList(Enchantment.values()).contains(glowEnchantment))
-                return;
-
-            ReflectionUtils.setField(Enchantment.class, "acceptingNew", true);
-            Enchantment.registerEnchantment(glowEnchantment);
-        }
     }
-
-    /**
-     * Gets Glow enchantment.
-     *
-     * @return Glow enchantment.
-     */
-    @Nonnull
-    public static Enchantment getGlowEnchantment() {
-        return glowEnchantment;
-    }
-
-    /**
-     * Gets NbtManager object.
-     *
-     * @return NbtManager object.
-     */
-    @Nonnull
-    public static NbtManager getNbtManager() {
-        return nbtManager;
-    }
-
 
     private Material type;
-    private String nbt;
     private String name;
     private int amount;
     private short durability;
@@ -111,7 +73,6 @@ public class ItemBuilder {
      */
     public ItemBuilder(@Nonnull Material type, int amount, short durability) {
         this.type = Validate.notNull(type, "type cannot be null!");
-        this.nbt = "{}";
         this.name = "";
         this.amount = amount;
         this.durability = durability;
@@ -130,7 +91,6 @@ public class ItemBuilder {
     public ItemBuilder(@Nonnull ItemBuilder builder) {
         Validate.notNull(builder, "builder cannot be null!");
         this.type = builder.type;
-        this.nbt = builder.nbt;
         this.name = builder.name;
         this.amount = builder.amount;
         this.durability = builder.durability;
@@ -148,7 +108,6 @@ public class ItemBuilder {
      */
     public ItemBuilder(@Nonnull ItemStack stack) {
         this(stack.getType(), stack.getAmount(), stack.getDurability());
-        this.nbt = nbtManager.get(stack);
 
         ItemMeta meta = stack.getItemMeta();
         if (meta != null) {
@@ -156,7 +115,7 @@ public class ItemBuilder {
             this.flags = meta.getItemFlags();
             this.lore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
             this.enchantments = meta.hasEnchants() ? meta.getEnchants() : new HashMap<>();
-            this.glow = meta.hasEnchants() && meta.getEnchants().containsKey(glowEnchantment);
+            this.glow = meta.hasEnchantmentGlintOverride();
             this.unbreakable = false;
         }
     }
@@ -498,28 +457,6 @@ public class ItemBuilder {
     }
 
     /**
-     * Gets nbt tag of item stack.
-     *
-     * @return Nbt tag.
-     */
-    public String getNbt() {
-        return this.nbt;
-    }
-
-    /**
-     * Sets nbt of item stack.
-     *
-     * @param nbt NBT.
-     * @param <T> This class type.
-     * @return This class.
-     */
-    @Nonnull
-    public <T extends ItemBuilder> T nbt(@Nonnull String nbt) {
-        this.nbt = Validate.notNull(nbt, "nbt cannot be null!");
-        return (T) this;
-    }
-
-    /**
      * Sets unbreakability of item stack.
      *
      * @param unbreakable Unbreakability.
@@ -549,7 +486,6 @@ public class ItemBuilder {
     @Nonnull
     public ItemStack build() {
         ItemStack stack = new ItemStack(this.type, this.amount, this.durability);
-        stack = nbtManager.set(stack, this.nbt);
 
         ItemMeta meta = stack.getItemMeta();
 
@@ -567,7 +503,7 @@ public class ItemBuilder {
             meta.setLore(this.lore);
             this.flags.forEach(meta::addItemFlags);
             this.enchantments.forEach((key, value) -> meta.addEnchant(key, value, true));
-            if (this.glow) meta.addEnchant(glowEnchantment, 0, true);
+            if (this.glow) meta.setEnchantmentGlintOverride(true);
             stack.setItemMeta(meta);
         }
 

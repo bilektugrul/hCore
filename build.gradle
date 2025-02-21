@@ -6,7 +6,7 @@ plugins {
 
 group 'com.hakan'
 version '0.8'
-sourceCompatibility = 8
+sourceCompatibility = 21
 compileJava.options.encoding = 'UTF-8'
 
 subprojects {
@@ -16,8 +16,8 @@ subprojects {
 
     group rootProject.group
     version rootProject.version
-    sourceCompatibility = 8
-    compileJava.options.encoding = 'UTF-8'
+    sourceCompatibility = 21
+    compileJava.options.encoding =   'UTF-8'
 
     repositories {
         mavenCentral()
@@ -25,6 +25,9 @@ subprojects {
         maven { url 'https://libraries.minecraft.net/' }
         maven { url 'https://repo.codemc.org/repository/nms/' }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven {
+            url = uri("https://repo.papermc.io/repository/maven-public/")
+        }
     }
 
     /*

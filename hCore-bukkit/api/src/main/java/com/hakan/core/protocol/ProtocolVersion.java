@@ -36,6 +36,7 @@ public enum ProtocolVersion {
     v1_20_R1("v1_20_R1"),
     v1_20_R2("v1_20_R2"),
     v1_20_R3("v1_20_R3"),
+    v1_21_R1("v1_21_R1"),
     ;
 
 
@@ -50,6 +51,8 @@ public enum ProtocolVersion {
             return v1_19_1_R1;
         else if (Bukkit.getBukkitVersion().contains("1.19.2"))
             return v1_19_2_R1;
+        else if (Bukkit.getBukkitVersion().contains("1.21"))
+            return v1_21_R1;
 
         String version = Bukkit.getServer().getClass().getName().split("\\.")[3];
         for (ProtocolVersion protocolVersion : ProtocolVersion.values())
